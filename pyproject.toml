@@ -1,0 +1,44 @@
+[project]
+name = "llmstartj-anime-bot"
+version = "0.1.0"
+description = "LLM-ассистент для подбора аниме в Telegram в стиле Сайтамы"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "aiogram~=3.0",
+    "openai",
+    "python-dotenv",
+    "aiofiles",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-username/llmstartj-anime-bot"
+Issues = "https://github.com/your-username/llmstartj-anime-bot/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "black",
+    "ruff",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]  # Длинные строки допустимы в некоторых случаях
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
