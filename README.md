@@ -70,11 +70,13 @@ docker run --env-file .env anime-bot
    - `OPENROUTER_API_KEY`
 5. Деплой произойдет автоматически
 
+**Простая инструкция:** [docs/railway_simple_deploy.md](docs/railway_simple_deploy.md)  
 Подробные инструкции: [docs/deployment.md](docs/deployment.md)
 
 ## Документация
 
 - 📖 [Руководство по деплою](docs/deployment.md)
+- 🚀 [Простая инструкция Railway](docs/railway_simple_deploy.md)
 - 🔧 [Устранение неполадок](docs/troubleshooting.md)
 - 🤖 [Создание бота](doc/guides/telegram_bot_creation.md)
 
