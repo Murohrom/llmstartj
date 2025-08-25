@@ -10,7 +10,13 @@ from openai import APIError, RateLimitError, APITimeoutError
 
 from src.utils.config import config
 from src.utils.logger import logger
-from src.utils.prompts import SYSTEM_PROMPT
+from src.utils.prompts import (
+    SYSTEM_PROMPT, 
+    TOP_ANIME_PROMPT, 
+    NEW_ANIME_PROMPT, 
+    CLASSIC_ANIME_PROMPT
+)
+from src.utils.message_utils import truncate_message, format_error_message
 from src.services.cache_service import cache_service
 from src.services.user_state_service import user_state_service
 
@@ -70,6 +76,9 @@ class LLMService:
             
             # Запрашиваем API
             response = await self._make_api_request(messages)
+            
+            # Обрезаем ответ до максимальной длины
+            response = truncate_message(response)
             
             # Добавляем ответ в историю диалога
             await user_state_service.add_message_to_history(user_id, "assistant", response)
@@ -140,9 +149,59 @@ class LLMService:
     
 
     
-    def _get_error_response(self) -> str:
+    def _get_error_response(self, error_type: str = "general") -> str:
         """Возвращает сообщение об ошибке в стиле Сайтамы."""
-        return "Хм... Что-то с интернетом. Попробуй еще раз."
+        return format_error_message(error_type)
+    
+    async def generate_category_response(self, category: str, user_id: int) -> str:
+        """
+        Генерирует ответ для конкретной категории аниме.
+        
+        Args:
+            category: Категория (top, new, classic)
+            user_id: ID пользователя для логирования
+            
+        Returns:
+            Ответ от LLM для категории
+        """
+        try:
+            logger.info(f"Category request for user {user_id}: {category}")
+            
+            # Выбираем промпт в зависимости от категории
+            if category == "top":
+                system_prompt = TOP_ANIME_PROMPT
+                user_message = "Покажи популярные аниме"
+            elif category == "new":
+                system_prompt = NEW_ANIME_PROMPT
+                user_message = "Покажи новинки сезона"
+            elif category == "classic":
+                system_prompt = CLASSIC_ANIME_PROMPT
+                user_message = "Покажи классические аниме"
+            else:
+                return "Хм... Не знаю такую категорию."
+            
+            # Формируем промпт
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message}
+            ]
+            
+            # Запрашиваем API
+            response = await self._make_api_request(messages)
+            
+            # Обрезаем ответ до максимальной длины
+            response = truncate_message(response)
+            
+            # Добавляем в историю диалога
+            await user_state_service.add_message_to_history(user_id, "user", f"/{category}")
+            await user_state_service.add_message_to_history(user_id, "assistant", response)
+            
+            logger.info(f"Category response for user {user_id}: {response}")
+            return response
+            
+        except Exception as e:
+            logger.error(f"Error generating category response for user {user_id}: {e}")
+            return self._get_error_response()
 
 
 # Глобальный экземпляр сервиса

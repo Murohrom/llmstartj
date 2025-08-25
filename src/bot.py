@@ -12,6 +12,7 @@ from src.utils.config import config
 from src.utils.logger import logger
 from src.handlers.start import router as start_router
 from src.handlers.anime import router as anime_router
+from src.services.pagination_service import pagination_service
 
 
 async def main():

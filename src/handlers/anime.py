@@ -8,6 +8,7 @@ from aiogram.exceptions import TelegramBadRequest
 
 from src.services.llm_service import llm_service
 from src.utils.logger import logger
+from src.utils.message_utils import format_error_message
 
 router = Router()
 
@@ -41,8 +42,8 @@ async def handle_text_message(message: Message):
         
     except TelegramBadRequest as e:
         logger.error(f"Telegram API error for user {user_id}: {e}")
-        await message.answer("Хм... Что-то с сообщением. Попробуй еще раз.")
+        await message.answer(format_error_message("general"))
         
     except Exception as e:
         logger.error(f"Unexpected error for user {user_id}: {e}")
-        await message.answer("Ладно, сервис тормозит. Подожди немного.")
+        await message.answer(format_error_message("timeout"))
