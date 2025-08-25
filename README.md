@@ -78,6 +78,14 @@ docker run --env-file .env anime-bot
 - 🔧 [Устранение неполадок](docs/troubleshooting.md)
 - 🤖 [Создание бота](doc/guides/telegram_bot_creation.md)
 
+### Облачные платформы для деплоя
+
+- 🚂 [Railway - рекомендуемая платформа](docs/railway_deployment_guide.md)
+- 🎨 [Render - альтернативная платформа](docs/render_deployment_guide.md)
+- 🚀 [Fly.io - для продвинутых](docs/fly_deployment_guide.md)
+- 📊 [Исследование платформ](docs/cloud_platforms_research.md)
+- 🎯 [Выбор платформы](docs/cloud_deployment_choice.md)
+
 ## Архитектура
 
 ```
