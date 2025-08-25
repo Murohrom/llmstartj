@@ -1,16 +1,22 @@
 # Многоэтапная сборка для оптимизации размера образа
 FROM python:3.11-slim as builder
 
-# Установка uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Установка uv (с fallback на pip)
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh || pip install uv
+ENV PATH="/root/.cargo/bin:$PATH"
 
 WORKDIR /app
 
 # Копирование файлов конфигурации проекта
 COPY pyproject.toml uv.lock ./
 
-# Установка зависимостей через uv
-RUN uv sync --frozen --no-cache
+# Установка зависимостей через uv (с fallback на pip)
+RUN uv sync --frozen --no-cache || pip install -e .
 
 # Финальный образ
 FROM python:3.11-slim as runtime

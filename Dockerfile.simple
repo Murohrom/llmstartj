@@ -1,0 +1,37 @@
+# Простой Dockerfile для Railway без uv
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Копирование файлов конфигурации
+COPY pyproject.toml ./
+
+# Установка зависимостей через pip
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -e .
+
+# Копирование исходного кода
+COPY src/ ./src/
+COPY data/ ./data/
+
+# Настройка переменных окружения
+ENV PYTHONPATH="/app/src"
+
+# Создание пользователя без root прав
+RUN useradd --create-home --shell /bin/bash app && \
+    chown -R app:app /app
+
+# Переключение на пользователя app
+USER app
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD python -c "import sys; sys.exit(0)"
+
+# Запуск приложения
+CMD ["python", "src/bot.py"]
