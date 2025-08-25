@@ -10,6 +10,7 @@ from aiogram.exceptions import TelegramBadRequest, TelegramNetworkError
 
 from src.utils.config import config
 from src.utils.logger import logger
+from src.utils.health_check import init_health_checks
 from src.handlers.start import router as start_router
 from src.handlers.anime import router as anime_router
 from src.services.pagination_service import pagination_service
@@ -25,6 +26,9 @@ async def main():
         # Создаем бота и диспетчер
         bot = Bot(token=config.TELEGRAM_BOT_TOKEN)
         dp = Dispatcher()
+        
+        # Инициализируем health checks
+        init_health_checks()
         
         # Регистрируем роутеры
         dp.include_router(start_router)
