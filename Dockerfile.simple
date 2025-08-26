@@ -1,4 +1,4 @@
-# Простой Dockerfile для Railway без системных зависимостей
+# Простой Dockerfile для Railway
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -6,15 +6,18 @@ WORKDIR /app
 # Копирование файлов конфигурации
 COPY requirements.txt ./
 
-# Установка зависимостей через pip
-RUN pip install --no-cache-dir -r requirements.txt
+# Обновление pip и установка зависимостей
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Копирование исходного кода
 COPY src/ ./src/
-COPY data/ ./data/
+
+# Создание папки data
+RUN mkdir -p data/cache
 
 # Настройка переменных окружения
-ENV PYTHONPATH="/app/src"
+ENV PYTHONPATH="/app"
 
 # Запуск приложения
-CMD ["python", "src/bot.py"]
+CMD ["python", "-m", "src.bot"]

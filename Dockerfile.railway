@@ -1,4 +1,4 @@
-# Минимальный Dockerfile для Railway
+# Dockerfile для Railway - надежная версия
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -13,8 +13,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Копирование исходного кода
 COPY src/ ./src/
 
-# Создание папки data
+# Создание структуры папок и копирование данных
 RUN mkdir -p data/cache
+COPY data/ ./data/ || echo "Папка data не найдена, создаем пустую структуру"
 
 # Настройка переменных окружения
 ENV PYTHONPATH="/app"
