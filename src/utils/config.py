@@ -17,7 +17,7 @@ class Config:
     
     # OpenRouter API
     OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
-    OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "meta-llama/llama-3.1-8b-instruct:free")
+    OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "openai/gpt-3.5-turbo")
     
     # Cache
     CACHE_TTL_HOURS: int = int(os.getenv("CACHE_TTL_HOURS", "24"))

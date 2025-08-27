@@ -24,6 +24,7 @@
 ```
 TELEGRAM_BOT_TOKEN=your_bot_token
 OPENROUTER_API_KEY=your_api_key
+OPENROUTER_MODEL=openai/gpt-3.5-turbo
 ```
 
 ### 3. Процесс сборки
@@ -50,6 +51,7 @@ OPENROUTER_API_KEY=your_api_key
 - `check_dockerfiles.py` - проверка Dockerfile
 - `check_deploy.py` - проверка готовности к деплою
 - `check_data.py` - проверка структуры данных
+- `check_models.py` - проверка доступности моделей OpenRouter
 
 ## 🎯 Результат
 Теперь Railway должен успешно собрать и запустить бота без ошибок копирования данных!

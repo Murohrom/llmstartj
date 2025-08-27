@@ -31,8 +31,14 @@ class LLMService:
             base_url="https://openrouter.ai/api/v1"
         )
         self.model = config.OPENROUTER_MODEL
+        self.fallback_models = [
+            "openai/gpt-3.5-turbo",
+            "anthropic/claude-3-haiku",
+            "google/gemini-pro",
+            "meta-llama/llama-3.1-8b-instruct:free"
+        ]
         self.max_retries = config.MAX_RETRIES
-        self.retry_delay = config.RETRY_DELAY
+        self.retry_delays = config.RETRY_DELAY
     
     async def generate_response(self, user_message: str, user_id: int) -> str:
         """
@@ -96,7 +102,7 @@ class LLMService:
     
     async def _make_api_request(self, messages: List[Dict[str, str]]) -> str:
         """
-        Отправляет запрос к OpenRouter API с retry логикой.
+        Отправляет запрос к OpenRouter API с retry логикой и fallback моделями.
         
         Args:
             messages: Список сообщений для API
@@ -107,45 +113,51 @@ class LLMService:
         Raises:
             Exception: При неудачных попытках
         """
-        last_error = None
+        # Список моделей для попыток (основная + fallback)
+        models_to_try = [self.model] + [m for m in self.fallback_models if m != self.model]
         
-        for attempt in range(self.max_retries):
-            try:
-                response = await self.client.chat.completions.create(
-                    model=self.model,
-                    messages=messages,
-                    max_tokens=1000,
-                    temperature=0.7,
-                    timeout=30
-                )
-                
-                return response.choices[0].message.content.strip()
-                
-            except RateLimitError as e:
-                last_error = e
-                wait_time = self.retry_delay * (2 ** attempt)
-                logger.warning(f"Rate limit hit, waiting {wait_time}s before retry {attempt + 1}")
-                await asyncio.sleep(wait_time)
-                
-            except APITimeoutError as e:
-                last_error = e
-                wait_time = self.retry_delay * (2 ** attempt)
-                logger.warning(f"API timeout, waiting {wait_time}s before retry {attempt + 1}")
-                await asyncio.sleep(wait_time)
-                
-            except APIError as e:
-                last_error = e
-                logger.error(f"API error on attempt {attempt + 1}: {e}")
-                if attempt == self.max_retries - 1:
-                    raise
-                await asyncio.sleep(self.retry_delay)
-                
-            except Exception as e:
-                logger.error(f"Unexpected error on attempt {attempt + 1}: {e}")
-                raise
+        for model in models_to_try:
+            logger.info(f"Trying model: {model}")
+            
+            for attempt in range(self.max_retries):
+                try:
+                    response = await self.client.chat.completions.create(
+                        model=model,
+                        messages=messages,
+                        max_tokens=1000,
+                        temperature=0.7,
+                        timeout=30
+                    )
+                    
+                    if model != self.model:
+                        logger.info(f"Successfully used fallback model: {model}")
+                    
+                    return response.choices[0].message.content.strip()
+                    
+                except RateLimitError as e:
+                    wait_time = self.retry_delays * (2 ** attempt)
+                    logger.warning(f"Rate limit hit for {model}, waiting {wait_time}s before retry {attempt + 1}")
+                    await asyncio.sleep(wait_time)
+                    
+                except APITimeoutError as e:
+                    wait_time = self.retry_delays * (2 ** attempt)
+                    logger.warning(f"API timeout for {model}, waiting {wait_time}s before retry {attempt + 1}")
+                    await asyncio.sleep(wait_time)
+                    
+                except APIError as e:
+                    logger.error(f"API error for {model} on attempt {attempt + 1}: {e}")
+                    if attempt == self.max_retries - 1:
+                        # Переходим к следующей модели
+                        break
+                    await asyncio.sleep(self.retry_delays)
+                    
+                except Exception as e:
+                    logger.error(f"Unexpected error for {model} on attempt {attempt + 1}: {e}")
+                    # Переходим к следующей модели
+                    break
         
-        # Если все попытки исчерпаны
-        raise last_error or Exception("All retry attempts failed")
+        # Если все модели и попытки исчерпаны
+        raise Exception(f"All models failed: {', '.join(models_to_try)}")
     
 
     
