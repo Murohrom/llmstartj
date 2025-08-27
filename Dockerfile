@@ -13,8 +13,11 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Копирование исходного кода
 COPY src/ ./src/
 
-# Создание папки data
+# Создание структуры данных
 RUN mkdir -p data/cache
+
+# Копирование данных
+COPY data/ ./data/
 
 # Настройка переменных окружения
 ENV PYTHONPATH="/app"

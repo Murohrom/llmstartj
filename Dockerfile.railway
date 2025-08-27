@@ -13,9 +13,11 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Копирование исходного кода
 COPY src/ ./src/
 
-# Создание структуры папок и копирование данных
+# Создание структуры папок
 RUN mkdir -p data/cache
-COPY data/ ./data/ || echo "Папка data не найдена, создаем пустую структуру"
+
+# Копирование данных
+COPY data/ ./data/
 
 # Настройка переменных окружения
 ENV PYTHONPATH="/app"

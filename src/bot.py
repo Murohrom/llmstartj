@@ -4,6 +4,8 @@
 
 import asyncio
 import sys
+import json
+from pathlib import Path
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.exceptions import TelegramBadRequest, TelegramNetworkError
@@ -19,6 +21,18 @@ from src.services.pagination_service import pagination_service
 async def main():
     """Главная функция приложения."""
     try:
+        # Инициализируем структуру данных
+        data_dir = Path("data")
+        cache_dir = data_dir / "cache"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Создаем пустой кэш если его нет
+        cache_file = cache_dir / "llm_cache.json"
+        if not cache_file.exists():
+            with open(cache_file, "w", encoding="utf-8") as f:
+                json.dump({}, f, ensure_ascii=False, indent=2)
+            logger.info("Создан пустой файл кэша")
+        
         # Валидируем конфигурацию
         config.validate()
         logger.info("Конфигурация валидна")
