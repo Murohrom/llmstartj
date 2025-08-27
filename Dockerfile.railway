@@ -24,15 +24,12 @@ COPY src/ ./src/
 # Создание структуры папок
 RUN mkdir -p data/cache
 
-# Копирование данных
-COPY data/ ./data/
-
 # Настройка переменных окружения
 ENV PYTHONPATH="/app"
 ENV PYTHONUNBUFFERED=1
 
 # Проверка структуры
-RUN ls -la && ls -la src/ && ls -la data/ || echo "Папка data не существует"
+RUN ls -la && ls -la src/
 
 # Запуск приложения
 CMD ["python", "-m", "src.bot"]

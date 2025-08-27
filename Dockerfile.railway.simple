@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Копирование кода
 COPY src/ ./src/
 
-# Создание папок
+# Создание структуры данных
 RUN mkdir -p data/cache
 
 # Переменные окружения

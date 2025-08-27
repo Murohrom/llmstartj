@@ -16,9 +16,6 @@ COPY src/ ./src/
 # Создание структуры данных
 RUN mkdir -p data/cache
 
-# Копирование данных
-COPY data/ ./data/
-
 # Настройка переменных окружения
 ENV PYTHONPATH="/app"
 ENV PYTHONUNBUFFERED=1
