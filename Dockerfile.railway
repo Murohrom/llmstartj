@@ -3,8 +3,16 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
 # Копирование файлов конфигурации
 COPY requirements.txt ./
+
+# Проверка содержимого requirements.txt
+RUN cat requirements.txt
 
 # Обновление pip и установка зависимостей
 RUN pip install --no-cache-dir --upgrade pip && \
@@ -21,6 +29,10 @@ COPY data/ ./data/
 
 # Настройка переменных окружения
 ENV PYTHONPATH="/app"
+ENV PYTHONUNBUFFERED=1
+
+# Проверка структуры
+RUN ls -la && ls -la src/ && ls -la data/ || echo "Папка data не существует"
 
 # Запуск приложения
 CMD ["python", "-m", "src.bot"]

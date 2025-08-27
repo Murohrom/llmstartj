@@ -21,6 +21,7 @@ COPY data/ ./data/
 
 # Настройка переменных окружения
 ENV PYTHONPATH="/app"
+ENV PYTHONUNBUFFERED=1
 
 # Запуск приложения
 CMD ["python", "-m", "src.bot"]
